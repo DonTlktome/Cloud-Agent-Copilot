@@ -1,0 +1,28 @@
+services:
+  app:
+    build: .
+    image: agent-workbench:latest
+    env_file: .env
+    environment:
+      DATA_DIR: /data
+    ports:
+      - "127.0.0.1:${HOST_PORT:-8080}:8080"
+    volumes:
+      - workbench-data:/data
+    restart: unless-stopped
+    stop_grace_period: 10s
+
+  # Optional: only needed for AGENT_CLI=claude. Claude Code speaks the Anthropic Messages API while
+  # the platform only offers OpenAI-compatible endpoints; LiteLLM translates between the two.
+  # Start with: docker compose --profile proxy up --build
+  litellm:
+    profiles: ["proxy"]
+    image: ghcr.io/berriai/litellm:main-stable
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
+    env_file: .env
+    volumes:
+      - ./proxy/litellm.yaml:/app/config.yaml:ro
+    restart: unless-stopped
+
+volumes:
+  workbench-data:

@@ -1,0 +1,14 @@
+# LiteLLM proxy for AGENT_CLI=claude: Claude Code -> /v1/messages (Anthropic) -> upstream /chat/completions.
+# Upstream endpoint, key and model come from .env (MODEL_BASE_URL, MODEL_API_KEY, AGENT_MODEL).
+model_list:
+  # Claude Code requests the model named in AGENT_MODEL; any other name (internal helper calls)
+  # falls through to the wildcard and is served by the same upstream model.
+  - model_name: "*"
+    litellm_params:
+      model: os.environ/LITELLM_UPSTREAM_MODEL
+      api_base: os.environ/MODEL_BASE_URL
+      api_key: os.environ/MODEL_API_KEY
+litellm_settings:
+  drop_params: true
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
