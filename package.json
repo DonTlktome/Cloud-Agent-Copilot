@@ -1,0 +1,22 @@
+{
+  "name": "agent-workbench",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cloud Agent workbench: a browser workspace on top of the Claude Code CLI",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev:mock": "AGENT_CLI=mock node src/server.js",
+    "test": "node --test",
+    "smoke": "node scripts/smoke.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "express": "^4.21.2",
+    "multer": "^1.4.5-lts.1"
+  }
+}
