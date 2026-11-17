@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agent 工作台</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div id="banner" class="banner hidden"></div>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">Agent 工作台</div>
+      <button id="newSession" class="btn primary block">+ 新建会话</button>
+      <ul id="sessionList" class="session-list"></ul>
+      <div id="health" class="health"></div>
+    </aside>
+
+    <main class="main">
+      <header class="main-header">
+        <div class="title-wrap">
+          <h1 id="sessionTitle">选择或新建一个会话</h1>
+          <span id="statusBadge" class="badge hidden"></span>
+          <span id="progress" class="progress"></span>
+        </div>
+        <div class="header-actions">
+          <button id="renameBtn" class="btn ghost" disabled>重命名</button>
+          <a id="exportBtn" class="btn ghost disabled" href="#">导出记录</a>
+          <button id="deleteBtn" class="btn ghost danger" disabled>删除</button>
+        </div>
+      </header>
+
+      <section id="timeline" class="timeline">
+        <div class="empty">
+          <h2>把工作交给助手</h2>
+          <p>新建一个会话，描述你要完成的事情：开发一个小工具、分析上传的材料、整理一份报告……</p>
+          <p>任务在服务器上执行，关闭页面也不会中断；回来后可在左侧找到会话继续交流。</p>
+        </div>
+      </section>
+
+      <footer class="composer">
+        <div id="attachments" class="attachments"></div>
+        <div class="composer-row">
+          <label class="btn ghost upload-btn" title="上传文件到工作区 uploads/">
+            上传文件<input id="fileInput" type="file" multiple hidden />
+          </label>
+          <textarea id="input" rows="3" placeholder="描述你的任务或修改意见（Ctrl+Enter 发送）" disabled></textarea>
+          <div class="send-col">
+            <button id="sendBtn" class="btn primary" disabled>发送</button>
+            <button id="stopBtn" class="btn danger hidden">停止</button>
+          </div>
+        </div>
+      </footer>
+    </main>
+
+    <aside class="files">
+      <div class="files-header">
+        <strong>工作区文件</strong>
+        <div>
+          <button id="refreshFiles" class="btn ghost small" disabled>刷新</button>
+          <a id="zipBtn" class="btn ghost small disabled" href="#">打包下载</a>
+        </div>
+      </div>
+      <div id="fileList" class="file-list"><div class="muted">暂无文件</div></div>
+      <div id="preview" class="preview hidden">
+        <div class="preview-header">
+          <span id="previewName"></span>
+          <span>
+            <a id="previewOpen" class="btn ghost small" target="_blank" rel="noopener">新窗口打开</a>
+            <a id="previewDownload" class="btn ghost small">下载</a>
+            <button id="previewClose" class="btn ghost small">关闭</button>
+          </span>
+        </div>
+        <div id="previewBody" class="preview-body"></div>
+      </div>
+    </aside>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
