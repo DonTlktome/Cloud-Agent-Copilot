@@ -148,7 +148,7 @@ function createApp(overrides = {}) {
       if (req.query.download) return res.download(abs, path.basename(abs), { dotfiles: 'allow' });
       // Agent-produced files (e.g. an HTML tool it built) are opened in a sandboxed origin so they
       // can run their own scripts but cannot call this workbench's API.
-      res.setHeader('Content-Security-Policy', 'sandbox allow-scripts allow-forms allow-modals allow-downloads');
+      if (/\.(html?|svg|xml|xhtml)$/i.test(abs)) res.setHeader('Content-Security-Policy', 'sandbox allow-scripts allow-forms allow-modals allow-downloads');
       res.setHeader('X-Content-Type-Options', 'nosniff');
       const ext = path.extname(abs).toLowerCase();
       if (TEXT_EXT.has(ext) && ext !== '.html') res.type('text/plain; charset=utf-8');

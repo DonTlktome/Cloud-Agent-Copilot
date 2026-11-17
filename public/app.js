@@ -336,9 +336,10 @@
     $('previewOpen').href = url;
     $('previewDownload').href = `${url}&download=1`;
     const body = $('previewBody');
+    if (/\.pdf$/i.test(p)) { body.innerHTML = `<iframe src="${url}"></iframe>`; return; }
     const ext = p.split('.').pop().toLowerCase();
     if (['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'].includes(ext)) { body.innerHTML = `<img src="${url}" alt="">`; return; }
-    if (['html', 'htm', 'pdf'].includes(ext)) { body.innerHTML = `<iframe sandbox="allow-scripts allow-forms" src="${url}"></iframe>`; return; }
+    if (['html', 'htm'].includes(ext)) { body.innerHTML = `<iframe sandbox="allow-scripts allow-forms" src="${url}"></iframe>`; return; }
     body.innerHTML = '<div class="muted">加载中…</div>';
     try {
       const res = await fetch(url);
