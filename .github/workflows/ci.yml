@@ -1,0 +1,79 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      real_agent:
+        description: "Also run the end-to-end demo against the real model API (needs MODEL_API_KEY secret)"
+        type: boolean
+        default: false
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t agent-workbench:ci .
+      - name: CLIs inside the image
+        run: |
+          docker run --rm agent-workbench:ci codex --version
+          docker run --rm agent-workbench:ci claude --version
+          docker run --rm agent-workbench:ci id
+      - name: Start container (mock agent)
+        run: |
+          docker run -d --name wb -p 8080:8080 -e AGENT_CLI=mock -e MOCK_DELAY_MS=200 agent-workbench:ci
+          for i in $(seq 1 30); do curl -fs localhost:8080/api/health && break; sleep 1; done
+      - name: Smoke test through the HTTP API
+        run: node scripts/smoke.js --base http://localhost:8080 --out evidence/ci-mock --cancel-check
+      - name: Restart container, data must survive
+        run: |
+          docker restart wb
+          for i in $(seq 1 30); do curl -fs localhost:8080/api/health && break; sleep 1; done
+          node scripts/smoke.js --base http://localhost:8080 --verify-persisted
+      - if: always()
+        run: docker logs wb
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-ci-mock
+          path: evidence/
+
+  real-agent:
+    if: github.event_name == 'workflow_dispatch' && inputs.real_agent
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      MODEL_API_KEY: ${{ secrets.MODEL_API_KEY }}
+      MODEL_BASE_URL: ${{ secrets.MODEL_BASE_URL }}
+      AGENT_MODEL: ${{ vars.AGENT_MODEL || 'linext-5.3-luna' }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t agent-workbench:ci .
+      - name: Start container (Codex + real model API)
+        run: |
+          docker run -d --name wb -p 8080:8080 -e AGENT_CLI=codex -e MODEL_API_KEY -e MODEL_BASE_URL -e AGENT_MODEL agent-workbench:ci
+          for i in $(seq 1 30); do curl -fs localhost:8080/api/health && break; sleep 1; done
+      - name: End-to-end demo (code task + daily task + follow-ups + multi-session)
+        run: node scripts/smoke.js --base http://localhost:8080 --out evidence/real-agent --timeout 900
+      - if: always()
+        run: docker logs wb 2>&1 | tail -200
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-real-agent
+          path: evidence/
