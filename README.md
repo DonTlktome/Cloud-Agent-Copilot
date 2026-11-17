@@ -151,3 +151,13 @@ samples/             演示用材料（销售明细 CSV、会议纪要）
 test/                API 测试
 docs/                演示脚本、截图与验证证据
 ```
+
+---
+
+## 9. 实测记录（考试期间）
+
+- 运行环境：GitHub Codespaces 中执行 `docker compose up --build -d`，浏览器通过端口转发访问 8080。
+- Agent：Codex CLI 0.169.0，直连平台 OpenAI Responses 接口，模型 `linext-5.3-luna`。
+- 端到端脚本日志：`docs/evidence/real-run-smoke.log`（代码任务 + 修改意见、上传材料的日常任务 + 修改意见、多会话）；完整会话记录导出在 `docs/evidence/real-run/`。
+- 界面截图：`docs/screenshots/`（执行过程、成果预览、续接追问、多会话并行、停止任务、重启后恢复）。
+- CI：`.github/workflows/ci.yml`（单元测试、镜像构建、容器内冒烟测试、重启后数据持久化）。
